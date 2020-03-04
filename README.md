@@ -1,13 +1,63 @@
-# TED-Q: TED Talks and the Questions they Evoke
+# TED-Q: TED Talks and the Questions they Evoke #
 
+## Contents of this repository ##
 
-## Obtain the source texts: ##
+See further below for an explanation of the structure of these .csv files.
+
+- TED-Q_elicitation.csv: Data from our elicitation phase: evoked questions and their (non-)answers.
+- TED-Q_comparison_raw.csv: Data from our comparison phase: how related are the evoked questions to each other -- individual annotator's judgments per question pair.
+- TED-Q_comparison_aggregated.csv: Data from our comparison phase, aggregated annotator's judgments per question pair (mean).
+
+## Download the source texts ##
+
+TED-Q provides an additional layer of annotations to the existing TED-MDB dataset. The source texts are not included in the current repository; download them here:
 
 https://github.com/MurathanKurfali/Ted-MDB-Annotations
 
+Or here (forked):
 
+https://github.com/amore-upf/Ted-MDB-Annotations
 
-## TED-Q_elicitation.csv: ##
+-------------------------------
+
+## Attribution ##
+
+If you use this resource, please cite our LREC paper:
+
+    @inproceedings{westera2019lrec,
+      title={TED-Q: TED Talks and the Questions they Evoke},
+      author={Matthijs Westera and Laia Mayol and Hannah Rohde},
+      booktitle = "Proceedings of the Twelfth International Conference on Language Resources and Evaluation (LREC'2020)",
+      year = 	 "2020",
+      month = 	 "May",
+      date =     "13-15",
+      address =  "Marseille, France",
+      publisher = "European Language Resource Association (ELRA)",
+    }
+
+And consider citing also the authors of the TED-MDB dataset, whose source texts we used:
+
+    @article{zeyrek2019ted,
+      title={TED Multilingual Discourse Bank (TED-MDB): a parallel corpus annotated in the PDTB style},
+      author={Zeyrek, Deniz and Mendes, Amalia and Grishina, Yulia and Kurfali, Murathan and Gibbon, Samuel and Ogrodniczuk,    Maciej},
+      journal={Language Resources and Evaluation},
+      pages={1--38},
+      year={2019},
+      publisher={Springer}
+    }
+
+    @inproceedings{zeyrek2018multilingual,
+      title={Multilingual Extension of PDTB-Style Annotation: The Case of TED Multilingual Discourse Bank.},
+      author={Zeyrek, Deniz and Mendes, Amalia and Kurfali, Murathan},
+      booktitle={LREC},
+      year={2018}
+    }
+
+-------------------------------
+
+## Structure of the .csv files ##
+
+### TED-Q_elicitation.csv: ###
 
 - excerpt_number: the number of excerpts (up to 6) this annotator has seen including the current one.
 
@@ -37,9 +87,7 @@ https://github.com/MurathanKurfali/Ted-MDB-Annotations
 
 - highlight_start/highlight_end (for 'question'/'answer' type annotations only): the start/end position (by number of characters) in the source text of the phrase highlighted by the annotator (depending on 'type': the trigger of the question, or the part providing the answer)
 
-
-
-## TED-Q_comparison_raw.csv ##
+### TED-Q_comparison_raw.csv ###
 
 We asked annotators to judge how related two questions were given the context that evoked them.
 
@@ -57,9 +105,7 @@ We asked annotators to judge how related two questions were given the context th
 
 - comparison_question_id: annotation id of the comparison question (for linking to elicitation data)
 
-
-
-## TED-Q_comparison_aggregated.csv ##
+### TED-Q_comparison_aggregated.csv ###
 
 We aggregated relatedness judgments by taking the mean, conflating target/comparison pairs in either order (making for ~6 judgments per pair):
 
