@@ -1,0 +1,738 @@
+<script>
+
+var fragment_phase = "start"
+showFragmentStart();
+
+// For loading the first fragment and showing appropriate form fields
+async function showFragmentStart() {
+    document.getElementById("fragment_highlighter1").innerHTML = fragmentstart;
+    document.getElementById("fragment_selector").innerHTML = fragmentstart;
+    await addTypedText(document.getElementById("fragment_colorizer"), fragmentstart);
+    document.getElementById("div_containing_form_for_fragment_start").style.display = "block";
+    //await sleep(1000);
+    //document.getElementById("link_to_show_fragment_cont").style.visibility = "visible";
+};
+
+
+// For showing the fragment continuation, and hiding/showing the appropriate form fields
+async function showFragmentCont(e) {
+
+    // TODO form completion and quality check
+    if (!qualityCheckFirstPart()) return;
+
+    fragment_phase = "cont";
+
+    // Slowly scroll to top
+    $("html, body").animate({ scrollTop: 0 }, "slow");
+
+    // Hide the clicked link, hide the first part of the form
+    document.getElementById("link_to_show_fragment_cont").style.display = "none";
+    document.getElementById("div_containing_form_for_fragment_start").style.display = "none";
+
+    // Dim the colors of the first part of the fragment
+    document.getElementById("fragment_colorizer").innerHTML = '<font color="#888888">' + fragmentstart + "</font>";
+    if (document.getElementById("question").value != "") {
+        // this "highlight1" object only exists if a question was entered before.
+        document.getElementById("highlight1").style.backgroundColor = "#E2F1FD";
+    }
+
+    // Now load the rest of the fragment
+    document.getElementById("fragment_highlighter1").innerHTML += "  " + fragmentcont;
+    document.getElementById("fragment_selector").innerHTML += " " + fragmentcont;
+    await addTypedText(document.getElementById("fragment_colorizer"), " " + fragmentcont);
+
+    // The new form
+    // Show something different depending on whether a question was evoked.
+    if (document.getElementById("question").value != "") {
+        document.getElementById("question_copy_for_display").innerHTML = document.getElementById("question").value;
+        document.getElementById("div_containing_form_for_fragment_cont").style.display = "block";
+    } else {
+        document.getElementById("div_containing_message_incase_no_question_was_evoked").style.display = "block";
+        document.getElementById("fragment_highlighter2").style.visibility = "hidden";
+    }
+
+    // And finally make the final continue link visible
+    document.getElementById("div_containing_continue-link").style.visibility = "visible"
+
+};
+
+
+// For hiding/showing follow-up form fields depending on whether the fragment evokes a question
+function toggleQuestionRadio(element) {
+    if ( element.id == "evoked_no" ) {
+        document.getElementById("question").disabled = true;
+        document.getElementById("hidden_field_for_storing_question").innerHTML = document.getElementById("question").value;
+        document.getElementById("question").value = "";
+        document.getElementById("fragment_highlighter1").style.visibility = "hidden";
+        document.getElementById("div_containing_item_4").style.color = "#888888";
+        document.getElementById("enter_your_question").style.color = "#888888";
+        document.getElementById("marker_in_question").style.backgroundColor = "#E2F1FD";
+        document.getElementById("marker_in_question").style.color = "#888888";
+        document.getElementById("question_highlighting_error").style.visibility = "hidden";
+    } else {
+        if ( document.getElementById("question").disabled = true ) {
+            document.getElementById("question").disabled = false;
+            document.getElementById("question").value = document.getElementById("hidden_field_for_storing_question").innerHTML;
+            document.getElementById("hidden_field_for_storing_question").innerHTML = "";
+            document.getElementById("fragment_highlighter1").style.visibility = "visible";
+            document.getElementById("div_containing_item_4").style.color = "#000000";
+            document.getElementById("marker_in_question").style.backgroundColor = "#76bef8";
+            document.getElementById("marker_in_question").style.color = "#000000";
+            document.getElementById("enter_your_question").style.color = "#000000";
+            document.getElementById("question_highlighting_error").style.visibility = "hidden";
+        }
+    };
+};
+
+// For hiding/showing follow-up form fields depending on whether the evoked question was answered
+function toggleAnswerRadio(element) {
+    if ( element.id == "answered1" || element.id == "answered2" ) {
+        document.getElementById("answer").disabled = true;
+        document.getElementById("hidden_field_for_storing_answer").innerHTML = document.getElementById("answer").value;
+        document.getElementById("answer").value = "";
+        document.getElementById("fragment_highlighter2").style.visibility = "hidden";
+        document.getElementById("div_containing_items_6_and_7").style.color = "#888888";
+        document.getElementById("answer_error").style.visibility = "hidden";
+        document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+        document.getElementById("marker_in_question2").style.backgroundColor = "#E2F1FD";
+        document.getElementById("marker_in_question2").style.color = "#888888";
+    } else {
+        if ( document.getElementById("answer").disabled == true ) {
+            document.getElementById("answer").disabled = false;
+            document.getElementById("answer").value = document.getElementById("hidden_field_for_storing_answer").innerHTML;
+            document.getElementById("fragment_highlighter2").style.visibility = "visible";
+            document.getElementById("div_containing_items_6_and_7").style.color = "#000000";
+            document.getElementById("answer_error").style.visibility = "hidden";
+            document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+            document.getElementById("marker_in_question2").style.backgroundColor = "#76bef8";
+            document.getElementById("marker_in_question2").style.color = "#000000";
+        }
+    };
+};
+
+
+function qualityCheckFirstPart() {
+    var check = true;
+
+//    document.getElementById("grammaticality_error").style.visibility = "hidden";
+    document.getElementById("coherence_error").style.visibility = "hidden";
+    document.getElementById("question_error").style.visibility = "hidden";
+    document.getElementById("question_highlighting_error").style.visibility = "hidden";
+    document.getElementById("div_for_first_error_message").style.visibility = "hidden";
+
+    // Grammaticality
+//      if (!document.getElementById("grammaticality1").checked &&
+//         !document.getElementById("grammaticality2").checked &&
+//         !document.getElementById("grammaticality3").checked &&
+//         !document.getElementById("grammaticality4").checked &&
+//         !document.getElementById("grammaticality5").checked) {
+//         flashMessage(document.getElementById("grammaticality_error"));
+//         check = false;
+//     }
+
+    // Coherence
+    if (!document.getElementById("coherence1").checked &&
+        !document.getElementById("coherence2").checked &&
+        !document.getElementById("coherence3").checked &&
+        !document.getElementById("coherence4").checked &&
+        !document.getElementById("coherence5").checked) {
+        flashMessage(document.getElementById("coherence_error"));
+        check = false;
+    }
+
+    // The question field
+    // TODO More sophisticated quality control, e.g., spellcheck, min length, question mark?
+    if ( document.getElementById("evoked_yes").checked && document.getElementById("question").value == "" ) {
+        flashMessage(document.getElementById("question_error"));
+        check = false;
+    }
+
+    // The highlighting
+    // TODO More sophisticated quality control, e.g., min words, max words?
+    if ( document.getElementById("evoked_yes").checked && document.getElementById("question_highlighting").value == "" ) {
+        flashMessage(document.getElementById("question_highlighting_error"));
+        check = false;
+    }
+
+    if (!check) flashMessage(document.getElementById("div_for_first_error_message"));
+
+    // If all is fine, clean up some garbage before sending to server
+    if (check) {
+        if (document.getElementById("evoked_no").checked) {
+            document.getElementById("question").value = "";
+            document.getElementById("question_highlighting").value = "";
+            document.getElementById("question_highlighting_start").value = "";
+            document.getElementById("question_highlighting_end").value = "";
+        }
+    }
+
+    return check;
+}
+
+
+function FinalQualityCheck() {
+
+    // In case nothing further was required:
+    if (document.getElementById("question").value == "") {
+        document.getElementById("answer").value = "";
+        document.getElementById("answer_highlighting").value = "";
+        document.getElementById("answer_highlighting_start").value = "";
+        document.getElementById("answer_highlighting_end").value = "";
+        return true;
+    }
+
+    // Otherwise, check if all required fields are completed:
+    var check = true;
+
+    document.getElementById("answered_error").style.visibility = "hidden";
+    document.getElementById("answer_error").style.visibility = "hidden";
+    document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+    document.getElementById("div_for_last_error_message").style.visibility = "hidden";
+
+    // Answered
+    if (!document.getElementById("answered1").checked &&
+        !document.getElementById("answered2").checked &&
+        !document.getElementById("answered3").checked &&
+        !document.getElementById("answered4").checked &&
+        !document.getElementById("answered5").checked) {
+        flashMessage(document.getElementById("answered_error"));
+        check = false;
+    }
+
+    // The answer field
+    // TODO More sophisticated quality control, e.g., spellcheck, min length, question mark?
+    if (!document.getElementById("answered1").checked && !document.getElementById("answered2").checked && document.getElementById("answer").value == "" ) {
+        flashMessage(document.getElementById("answer_error"));
+        check = false;
+    }
+
+    // The answer highlighting
+    // TODO More sophisticated quality control, e.g., min words, max words?
+    if (!document.getElementById("answered1").checked && !document.getElementById("answered2").checked && document.getElementById("answer_highlighting").value == "" ) {
+        flashMessage(document.getElementById("answer_highlighting_error"));
+        check = false;
+    }
+
+    if (!check) flashMessage(document.getElementById("div_for_last_error_message"));
+
+    // If all is fine, clean up some garbage before sending to server
+    if (check) {
+        if (document.getElementById("answered1").checked || document.getElementById("answered2").checked) {
+            document.getElementById("answer").value = "";
+            document.getElementById("answer_highlighting").value = "";
+            document.getElementById("answer_highlighting_start").value = "";
+            document.getElementById("answer_highlighting_end").value = "";
+        }
+    }
+
+    return check;
+
+}
+
+// returns selection, but only when it exists wholly inside the "selector" field
+function getSelection() {
+
+    var selection = document.getSelection();
+
+    if (selection.anchorNode == null) return null;
+
+    if (
+        selection.anchorNode.parentNode.id == "fragment_selector" &&
+        selection.focusNode.parentNode.id == "fragment_selector" &&
+        selection.anchorOffset != selection.focusOffset
+    ) {
+        // determine start and end character based on anchor (where you click) and focus (where you release)
+        start = Math.min(selection.anchorOffset, selection.focusOffset)+1;
+        end = Math.max(selection.anchorOffset, selection.focusOffset)-1;
+
+        // Select only whole words.
+        var text = document.getElementById("fragment_selector").innerHTML;
+        while (start > 0) {
+            if (text[start-1] == " " || text[start-1] == "’") {
+                break;
+            }
+            start -= 1;
+        }
+        while (end < text.length) {
+            if (text[end] == " " || text[end] == "," || text[end] == "." || text[end] == ";" || text[end] == ":" || text[end] == ")" || text[end] == "'" || text[end] == '"' || text[end] == "’" || text[end] == "”") {
+                break;
+            }
+            end += 1;
+        }
+
+        // clear selection:
+        if (selection.removeAllRanges) {
+            selection.removeAllRanges();
+        } else if (selection.empty) {
+            selection.empty();
+        }
+
+        // Select only in appropriate region.
+        if (fragment_phase == "cont" && start < fragmentstart.length) {
+            return null;
+        };
+
+        return [start, end];
+
+    }
+    return null;
+};
+
+// Called whenever mouse is released, used only for grabbing selection
+document.onmouseup = document.onkeyup = function() {
+
+    var sel = getSelection();
+    // Only do something if you've actually selected something (in the proper field):
+    if ( sel != null ) {
+
+        var text = document.getElementById("fragment_selector").innerHTML;
+
+        if (fragment_phase == "start") {
+            document.getElementById("question_highlighting_start").value = sel[0];
+            document.getElementById("question_highlighting_end").value = sel[1];
+            document.getElementById("question_highlighting").value = text.substring(sel[0], sel[1]);
+
+            // Add highlighting, store in "highlighter" field displayed behind the "selector".
+            document.getElementById("fragment_highlighter1").innerHTML =
+                text.substring(0, sel[0]) +
+                '<mark id="highlight1" style="color: transparent; background-color: #76bef8">' + text.substring(sel[0], sel[1]) + "</mark>" +
+                text.substring(sel[1], text.length);
+        } else if (document.getElementById("question").value != "") {
+            document.getElementById("answer_highlighting_start").value = sel[0];
+            document.getElementById("answer_highlighting_end").value = sel[1];
+            document.getElementById("answer_highlighting").value = text.substring(sel[0], sel[1]);
+
+            // Add highlighting, store in "highlighter" field displayed behind the "selector".
+            document.getElementById("fragment_highlighter2").innerHTML =
+                text.substring(0, sel[0]) +
+                '<mark style="color: transparent; background-color: #76bef8">' + text.substring(sel[0], sel[1]) + "</mark>" +
+                text.substring(sel[1], text.length);
+        }
+
+    }
+};
+
+
+// For keyboard shortcuts of radio buttons
+window.onkeyup = function(e) {
+    var key = e.keyCode ? e.keyCode : e.which;
+
+    var name = document.activeElement.name;
+
+    if (name == "coherence" || name == "answered") {
+        if (key >= 49 && key <= 53) {
+
+            key = key - 48;
+
+            document.getElementById(name + key).checked = "true";
+            document.getElementById(name + key).focus();
+
+            if (name == "answered") {
+                toggleAnswerRadio(document.getElementById(name + key));
+            }
+        }
+    } else if (name == "evoked") {
+        if (key == 49 || key == 89) {
+            key = "yes"
+        } else if (key == 50 || key == 48 || key == 78) {
+            key = "no"
+        }
+        if (key == "yes" || key == "no") {
+            document.getElementById(name + "_" + key).checked = "true";
+            document.getElementById(name + "_" + key).focus();
+
+            toggleQuestionRadio(document.getElementById(name + "_" + key))
+        }
+    }
+}
+
+
+</script>
+
+
+<style>
+/** Thanks to https://github.com/scottaohara/a11y_styled_form_controls
+ * Shared styling among the different form controls.
+ * Much of these styles are pulled from normalize.css.
+ * Use as necessary within your own style sheets.
+ */
+
+input,
+button,
+textarea,
+select {
+	border-radius: 0; /* may change, but start consistently */
+	box-sizing: border-box;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: normal;
+	margin: 0;
+	overflow: visible; /* show overflow in Edge */
+	text-transform: none; /* remove inheritance Edge, Firefox, IE */
+}
+
+/**
+ * Remove the Clear button added by MS browsers
+ */
+input::-ms-clear {
+	display: none;
+	height: 0;
+	width: 0;
+}
+
+
+/**
+ * <button> Focus Normalization:
+ * remove FireFox specific inner focus styles.
+ * focus style will be reapplied later.
+ */
+button::-moz-focus-inner {
+	border-style: none;
+	padding: 0;
+}
+
+
+/* parent container <fieldset> */
+.r-pill {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+/*
+	Optional inner wrapper (<div>) to provide additional styling.
+*/
+.r-pill__group {
+	background: #fafafa;
+	border: 1px solid #083851;
+	border-radius: 2em;
+	display: inline-block;
+	padding: .25em;
+}
+
+.r-pill__item {
+	display: inline-block;
+	position: relative;
+}
+
+.r-pill input {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background: none;
+	border: 2px solid;
+	height: 100%;
+	left: 0;
+	opacity: .00001;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+
+.r-pill__item label {
+	border-radius: 2em;
+	border: 2px solid transparent;
+	color: #083851;
+	display: block;
+	padding: .25em .75em;
+}
+
+.r-pill__item input:hover ~ label,
+.r-pill__item label:hover {
+	background: #E2F1FD;
+	border-color: #2196f3;
+}
+
+.r-pill[disabled] .r-pill__item input:checked + label:hover,
+.r-pill__item input:checked + label {
+	background: #2196f3;
+	color: #fff;
+}
+
+.r-pill__item label:after {
+	border: 2px solid;
+	border-color: rgba(0,0,0,0);
+	border-radius: 2em;
+	bottom: 0;
+	content: "";
+	left: 0;
+	pointer-events: none; /* 1 */
+	position: absolute;
+	right: 0;
+	top: 0;
+	transition:
+		bottom .2s ease-in-out,
+		border-color .2s ease-in-out,
+		left .2s ease-in-out,
+		right .2s ease-in-out,
+		top .2s ease-in-out;
+	/*
+		1. Don't like pointer-events?
+			 then use z-index: -1;
+			 but we don't want this getting in the way
+			 of touch / mouse clicks.
+	*/
+}
+
+.r-pill__item input:focus ~ label:after  {
+	border-color: #2196f3;
+	bottom: -.25em;
+	left: -.25em;
+	right: -.25em;
+	top: -.25em;
+}
+
+
+/**
+ * Disabled
+ */
+.r-pill[disabled],
+.r-pill__item input[disabled] + label {
+	opacity: .5;
+}
+
+.r-pill__item input[disabled] ~ label,
+.r-pill__item input[disabled] ~ label:hover,
+.r-pill[disabled] label:hover {
+	background: transparent;
+	border-color: transparent;
+	cursor: not-allowed;
+}
+
+
+/**
+ * Undo styling that makes these pills appear as
+ * if they are all checked in high contrast mode.
+ */
+@media screen and (-ms-high-contrast: active) {
+	.r-pill__item label {
+		border: 0;
+		margin: 2px;
+	}
+
+	.r-pill__item input:checked + label {
+		border: 2px solid;
+		margin: 0;
+	}
+
+	.r-pill__item input:hover ~ label,
+	.r-pill__item label:hover {
+		text-decoration: underline;
+	}
+
+	.r-pill[disabled] .r-pill__item label:hover,
+	.r-pill[disabled] .r-pill__item input:hover ~ label {
+		text-decoration: none
+	}
+}
+</style>
+
+
+<!--
+<center><button onclick="clearSelection()">clear highlighting</button></center> -->
+
+<div style="width: 40em">
+    <hr>
+        <div style="height: 120pt">  <!-- TODO More principled way of choosing height -->
+            <div id="fragment_highlighter1" style="color:transparent; position: absolute; width: 40em; display: inline-block"></div>
+            <div id="fragment_highlighter2" style="color:transparent; position: absolute; width: 40em; display: inline-block"></div>
+            <div id="fragment_colorizer" style="position: absolute; width: 40em; display: inline-block"></div>
+            <div id="fragment_selector" style="color:transparent; position: relative; width: 40em; display: inline-block"></div>
+        </div>
+    <hr>
+
+<div id="div_containing_form_for_fragment_start" style="display: none; position: absolute; width:40em">
+<!--    <p>
+        <b>1. Does the fragment have grammatical errors, typos, incomplete sentences, etc?</b>
+        <b id="grammaticality_error" style="color: red; visibility: hidden">*</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Full of errors.</i>
+                <span class="r-pill__item">
+                    <input type="radio" id="grammaticality1" name="grammaticality" value="1">
+                    <label for="grammaticality1">1</label>
+                </span>
+
+                <span class="r-pill__item">
+                    <input type="radio" id="grammaticality2" name="grammaticality" value="2">
+                    <label for="grammaticality2">2</label>
+                </span>
+
+                <span class="r-pill__item">
+                    <input type="radio" id="grammaticality3" name="grammaticality" value="3">
+                    <label for="grammaticality3">3</label>
+                </span>
+
+                <span class="r-pill__item">
+                    <input type="radio" id="grammaticality4" name="grammaticality" value="4">
+                    <label for="grammaticality4">4</label>
+                </span>
+
+                <span class="r-pill__item">
+                    <input type="radio" id="grammaticality5" name="grammaticality" value="5">
+                    <label for="grammaticality5">5</label>
+                </span>
+                <i>No errors.&nbsp;&nbsp;</i>
+            </div>
+        </fieldset>
+    </p> -->
+
+    <p>
+        <b>1. Is this fragment comprehensible to you?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Incomprehensible.</i>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherence1" name="coherence" value="1">
+                    <label for="coherence1">1</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherence2" name="coherence" value="2">
+                    <label for="coherence2">2</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherence3" name="coherence" value="3">
+                    <label for="coherence3">3</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherence4" name="coherence" value="4">
+                    <label for="coherence4">4</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherence5" name="coherence" value="5">
+                    <label for="coherence5">5</label>
+                </span>
+                <i>Comprehensible.&nbsp;&nbsp;</i>
+            </div><b id="coherence_error" style="color: red; visibility: hidden"> *</b>
+        </fieldset>
+    </p>
+
+    <p>
+        <b>2. Does this fragment evoke a question for you?</b><br>
+        <!-- (List up to three questions; leave <i>blank</i> if it does not evoke any questions.) <br> -->
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <span class="r-pill__item">
+                    <input type="radio" id="evoked_yes" name="evoked" value="1" onclick="toggleQuestionRadio(this)" checked>
+                    <label for="evoked_yes">Yes</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="evoked_no" name="evoked" value="0" onclick="toggleQuestionRadio(this)">
+                    <label for="evoked_no">No</label>
+                </span>
+            </div>
+        </fieldset>
+        <div style="position:absolute; margin-left: 8em; margin-top:-52px"><div id="enter_your_question" style="font-size: small">Your question:</div>
+            <div class="r-pill__group"><input name="question" id="question" type="text" style="width: 25em; color:#083851; border-style:none"/></div><b id="question_error" style="color: red; visibility: hidden;"> *</b></div>
+    <div id="hidden_field_for_storing_question" style="display: none"></div>
+        <!-- <input name="q2" type="text" style="width: 40em"></input><br>
+        <input name="q3" type="text" style="width: 40em"></input><br> -->
+    </p>
+
+    <div id="div_containing_item_4"><p>
+        <b>3. In the fragment, <mark id="marker_in_question" style="background:#76bef8">highlight</mark> the main phrase that evoked this question.</b>
+        <b id="question_highlighting_error" style="color: red; visibility: hidden"> *</b>
+        <!-- <ul>
+            <li>Please  a phrase in the fragment above (cursor selection).</li>
+            <li>To change the highlighting just make a new selection.</li>
+            <li>There's also a button to <i>clear</i> the current highlighting.</li>
+            <li>If no phrase seems suitable for marking, do not select anything.</li>
+        </ul>-->
+<!-- below are invisible form fields to which the selection is saved. -->
+        <div style="display: none">
+        Selected text:
+            <input id="question_highlighting" name="question_highlighting" type="text" style="width: 32em">
+            <textarea id="question_highlighting_start" name="question_highlighting_start" rows="1" cols="10"></textarea>
+            <textarea id="question_highlighting_end" name="question_highlighting_end" rows="1" cols="10"></textarea>
+        </div>
+    </p></div>
+
+    <hr>
+
+    <div id="link_to_show_fragment_cont">
+        <div id="div_for_first_error_message" style="color: red; visibility: hidden">
+        Please complete the form first.
+        </div>
+        <a href="#!" class="Message-continue-link" id="link_to_show_fragment_cont_ahref" onclick="showFragmentCont()">
+        &#8594 Done? Click to save your answers and see how the fragment continues.
+        </a><br><br>
+    </div>
+
+</div>
+
+<div id="div_containing_message_incase_no_question_was_evoked" style="position: relative; display: none">
+    <p><b>Based on your responses we have no further questions about this fragment.</b></p>
+</div>
+
+<div id="div_containing_form_for_fragment_cont" style="display: none; width:40em">
+
+    <p><b>For you, the first part evoked the following question:</b>
+        <div class="r-pill__group" style="background-color: #eeeeee"><div id="question_copy_for_display" style="width: 32em"></div></div>
+        <!-- "width: 32em; background-color: #eeeeee; border: 1px solid darkgray; box-shadow: 1px 1px 1px 0 lightgray inset; margin-top: 5px; padding: 2px 3px" -->
+    </p>
+
+    <p><b>4. Was your question answered in the continuation?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Not answered at all.</i>
+                <!-- Ugly way of having default value empty string for radio buttons: -->
+                <input type="text" id="answered0" name="answered" value="" style="display:none"/>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered1" name="answered" value="1" onclick="toggleAnswerRadio(this)"/>
+                    <label for="answered1">1</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered2" name="answered" value="2" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered2">2</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered3" name="answered" value="3" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered3">3</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered4" name="answered" value="4" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered4">4</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered5" name="answered" value="5" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered5">5</label>
+                </span>
+                <i>Completely answered.&nbsp;&nbsp;</i>
+            </div><b id="answered_error" style="color: red; visibility: hidden"> *</b>
+        </fieldset>
+    </p>
+
+    <div id="div_containing_items_6_and_7"><p>
+        <b>5. Enter the (complete/partial) answer in your own words:</b><br>
+        <div class="r-pill__group"><input name="answer" id="answer" type="text" style="width: 33em; color:#083851; border-style:none" /></div><b id="answer_error" style="color: red; visibility: hidden"> *</b>
+        <div id="hidden_field_for_storing_answer" style="display: none"></div>
+        </p>
+
+        <p>
+        <b>6. In the fragment, <mark id="marker_in_question2" style="background:#76bef8">highlight</mark> the main phrase suggesting this answer.</b>
+        <b id="answer_highlighting_error" style="color: red; visibility: hidden"> *</b><br>
+        <!-- <ul>
+            <li>Please  a phrase in the new part of the fragment above.</li>
+            <li>To change the highlighting just make a new selection.</li>
+            <li>There's also a button to <i>clear</i> the current highlighting.</li>
+            <li>If no phrase seems suitable for marking, do not select anything.</li>
+        </ul> -->
+<!-- below are invisible form fields to which the selection is saved. -->
+        <div style="display: none">
+        Selected text:
+            <input id="answer_highlighting" name="answer_highlighting" type="text" style="width: 32em">
+            <textarea id="answer_highlighting_start" name="answer_highlighting_start" rows="1" cols="10"></textarea>
+            <textarea id="answer_highlighting_end" name="answer_highlighting_end" rows="1" cols="10"></textarea>
+        </div>
+    </p></div>
+
+    <hr>
+    <div id="div_for_last_error_message" style="color: red; visibility: hidden">
+    Please complete the form first.
+    </div>
+
+</div>
+
+</div>

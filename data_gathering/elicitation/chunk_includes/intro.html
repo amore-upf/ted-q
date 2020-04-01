@@ -1,0 +1,374 @@
+<script>
+
+    $('body').scrollTop(0);
+
+    // Restricts input for the given textbox to the given inputFilter.
+    function setInputFilter(textbox, inputFilter) {
+      ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
+        textbox.addEventListener(event, function() {
+          if (inputFilter(this.value)) {
+            this.oldValue = this.value;
+            this.oldSelectionStart = this.selectionStart;
+            this.oldSelectionEnd = this.selectionEnd;
+          } else if (this.hasOwnProperty("oldValue")) {
+            this.value = this.oldValue;
+            this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+          }
+        });
+      });
+    }
+
+    // Restrict input to digits and '.' by using a regular expression filter.
+    setInputFilter(document.getElementById("age"), function(value) {
+      return /^\d*\.?\d*$/.test(value);
+    });
+
+
+    // Makes sure selection field is properly saved as form input
+    function saveEducation() {
+        document.getElementById("education_hidden").value = document.getElementById("education").value;
+    }
+
+</script>
+
+
+<div style="width: 44em;">
+
+    <h3>Welcome!</h3>
+
+    <p>
+        For our research we require some basic information about you. <mark>Your responses on this first page will NOT affect your suitability for this and future HITs.</mark>
+    </p>
+
+    <hr>
+
+    <p><b>&#9654; Please enter your basic personal information:<br></b></p>
+    <table>
+        <tr>
+            <td style="width:18em">Mturk ID:</td>
+            <td style="width:20em"><div class="r-pill__group">
+                <input name="id" id="id" type="text" maxlength="20" style="width: 20em; border-style:none; background-color:transparent" class="obligatory" />
+                </div>
+            </td>
+            <td style="width:2em"><label class="error" for="id" style="color:red"></label></td>
+        </tr>
+        <tr>
+            <td>Age:</td>
+            <td><div class="r-pill__group">
+                <input name="age" id="age" type="text" maxlength="3" style="width: 3em; border-style:none; background-color:transparent" class="obligatory" />
+                </div>
+            </td>
+            <td><label class="error" for="age" style="color:red"></label></td>
+        </tr>
+        <tr>
+            <td>Gender:</td>
+            <td><div class="r-pill__group">
+                <input name="gender" id="gender" type="text" maxlength="20" style="width: 20em; border-style:none; background-color:transparent" class="obligatory" />
+                </div>
+            </td>
+            <td><label class="error" for="gender" style="color:red"></label></td>
+        </tr>
+        <tr>
+            <td>Primary language(s) spoken at home before age 6:</td>
+            <td><div class="r-pill__group">
+                <input name="language" id="language" type="text" maxlength="40" style="width: 20em; border-style:none; background-color:transparent" class="obligatory" />
+                </div>
+            </td>
+            <td><label class="error" for="language" style="color:red"></label></td>
+        </tr>
+        <tr>
+            <td>Highest level of education:</td>
+            <td><div class="r-pill__group" style="height:18pt">
+                <!-- taken from to https://gist.github.com/ag14spirit/ -->
+                <select class="form-control dropdown" id="education" style="width: 20em; border-style:none; background-color:transparent" class="obligatory" onchange="saveEducation()">
+                    <option value="" selected="selected" disabled="disabled">-- select one --</option>
+                    <option value="No formal education">No formal education</option>
+                    <option value="Primary education">Primary education</option>
+                    <option value="Secondary education">Secondary education or high school</option>
+                    <option value="GED">GED</option>
+                    <option value="Vocational qualification">Vocational qualification</option>
+                    <option value="Bachelor's degree">Bachelor's degree</option>
+                    <option value="Master's degree">Master's degree</option>
+                    <option value="Doctorate or higher">Doctorate or higher</option>
+                </select>
+            </div>
+        <!-- below is invisible form field to which the selection is saved. Ibex doesn't do <select> fields. -->
+        <div style="display: none">Selected education:
+            <input id="education_hidden" name="education" type="text" style="width: 32em" class="obligatory">
+        </div>
+            </td>
+            <td><label class="error" for="education" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td>Do you have normal hearing?</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="hearing_yes" name="hearing" value="1" class="obligatory" />
+                        <label for="hearing_yes">Yes</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="hearing_no" name="hearing" value="0" class="obligatory" />
+                        <label for="hearing_no">No</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="hearing" style="color:red"></label></td>
+
+        </tr>
+        <tr>
+            <td>Do you have normal eyesight (or corrected to normal)?</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="eyesight_yes" name="eyesight" value="1" class="obligatory" />
+                        <label for="eyesight_yes">Yes</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="eyesight_no" name="eyesight" value="0" class="obligatory" />
+                        <label for="eyesight_no">No</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="eyesight" style="color:red"></label></td>
+        </tr>
+
+
+	<tr style="vertical-align: top;">
+            <td>Have you ever been diagnosed with <i>Autism Spectrum Disorder</i>, by a medical professional?</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="autism_no" name="autism" value="no" class="obligatory" />
+                        <label for="autism_no">No, never</label>
+                    </span><br>
+                    <span class="r-pill__item">
+                        <input type="radio" id="autism_child" name="autism" value="as_child" class="obligatory" />
+                        <label for="autism_child">Yes, as a child</label>
+                    </span><br>
+                    <span class="r-pill__item">
+                        <input type="radio" id="autism_adult" name="autism" value="as_adult" class="obligatory" />
+                        <label for="autism_adult">Yes, only as an adult</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="autism" style="color:red"></label></td>
+        </tr>
+
+    </table>
+
+
+    <p><b>&#9654; On an average day, how much time would you spend <i><mark>reading</mark></i>:<br></b></p>
+    <table>
+
+        <tr>
+            <td style="width: 15em;"> ...fiction</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_fiction1" name="r_fiction" value="0" class="obligatory" />
+                        <label for="r_fiction1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_fiction2" name="r_fiction" value="30" class="obligatory" />
+                        <label for="r_fiction2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_fiction3" name="r_fiction" value="60" class="obligatory" />
+                        <label for="r_fiction3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_fiction4" name="r_fiction" value="120" class="obligatory" />
+                        <label for="r_fiction4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="r_fiction" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...news/magazines</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_magnews1" name="r_magnews" value="0" class="obligatory" />
+                        <label for="r_magnews1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_magnews2" name="r_magnews" value="30" class="obligatory" />
+                        <label for="r_magnews2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_magnews3" name="r_magnews" value="60" class="obligatory" />
+                        <label for="r_magnews3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_magnews4" name="r_magnews" value="120" class="obligatory" />
+                        <label for="r_magnews4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="r_magnews" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...social media/text messages/email</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_social1" name="r_social" value="0" class="obligatory" />
+                        <label for="r_social1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_social2" name="r_social" value="30" class="obligatory" />
+                        <label for="r_social2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_social3" name="r_social" value="60" class="obligatory" />
+                        <label for="r_social3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_social4" name="r_social" value="120" class="obligatory" />
+                        <label for="r_social4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="r_social" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...anything else</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_other1" name="r_other" value="0" class="obligatory" />
+                        <label for="r_other1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_other2" name="r_other" value="30" class="obligatory" />
+                        <label for="r_other2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_other3" name="r_other" value="60" class="obligatory" />
+                        <label for="r_other3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="r_other4" name="r_other" value="120" class="obligatory" />
+                        <label for="r_other4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="r_other" style="color:red"></label></td>
+        </tr>
+
+    </table>
+
+    <p><b>&#9654; And how much time would you spend <i><mark>writing</mark></i>:<br></b></p>
+    <table>
+        <tr>
+            <td style="width: 15em;"> ...fiction</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_fiction1" name="w_fiction" value="0" class="obligatory" />
+                        <label for="w_fiction1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_fiction2" name="w_fiction" value="30" class="obligatory" />
+                        <label for="w_fiction2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_fiction3" name="w_fiction" value="60" class="obligatory" />
+                        <label for="w_fiction3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_fiction4" name="w_fiction" value="120" class="obligatory" />
+                        <label for="w_fiction4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="w_fiction" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...news/magazines</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_magnews1" name="w_magnews" value="0" class="obligatory" />
+                        <label for="w_magnews1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_magnews2" name="w_magnews" value="30" class="obligatory" />
+                        <label for="w_magnews2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_magnews3" name="w_magnews" value="60" class="obligatory" />
+                        <label for="w_magnews3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_magnews4" name="w_magnews" value="120" class="obligatory" />
+                        <label for="w_magnews4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="w_magnews" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...social media/text messages/email</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_social1" name="w_social" value="0" class="obligatory" />
+                        <label for="w_social1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_social2" name="w_social" value="30" class="obligatory" />
+                        <label for="w_social2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_social3" name="w_social" value="60" class="obligatory" />
+                        <label for="w_social3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_social4" name="w_social" value="120" class="obligatory" />
+                        <label for="w_social4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="w_social" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td style="width: 15em;"> ...anything else</td>
+            <td><fieldset class="r-pill">
+                <div class="r-pill__group">
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_other1" name="w_other" value="0" class="obligatory" />
+                        <label for="w_other1">none</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_other2" name="w_other" value="30" class="obligatory" />
+                        <label for="w_other2">30 mins</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_other3" name="w_other" value="60" class="obligatory" />
+                        <label for="w_other3">1 hour</label>
+                    </span>
+                    <span class="r-pill__item">
+                        <input type="radio" id="w_other4" name="w_other" value="120" class="obligatory" />
+                        <label for="w_other4">2+ hours</label>
+                    </span>
+                </div>
+            </fieldset></td>
+            <td><label class="error" for="w_other" style="color:red"></label></td>
+        </tr>
+
+        <tr>
+            <td colspan="2"><label class="error" for="consent"></label></td>
+        </tr>
+    </table>
+
+</div>

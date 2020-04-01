@@ -1,0 +1,227 @@
+<script>
+selector = document.getElementById("fragment_selector");
+
+radio_buttons_yesno = ["evoked"];
+radio_buttons_5 = [];
+
+init();
+
+function revealForm() {
+
+    document.getElementById("marker_in_question").style.backgroundColor = window.colors[window.current_color_idx];
+    document.getElementById("question_field").style.backgroundColor = window.colors[window.current_color_idx];
+    document.getElementById("form").style.visibility = "visible";
+
+    if(window.questions_thusfar.length > 0) {
+        document.getElementById("other").innerHTML = "nother";
+    }
+
+}
+
+// For hiding/showing follow-up form fields depending on whether the fragment evokes a question
+function toggleQuestionRadio(element) {
+    if ( element.id == "evoked_no" ) {
+        document.getElementById("question").disabled = true;
+        document.getElementById("hidden_field_for_storing_question").innerHTML = document.getElementById("question").value;
+        document.getElementById("question").value = "";
+        document.getElementById("fragment_highlighter").style.visibility = "hidden";
+        document.getElementById("div_containing_item_4").style.color = "#888888";
+        document.getElementById("enter_your_question").style.color = "#888888";
+        document.getElementById("marker_in_question").style.backgroundColor = colors_dimmed[current_color_idx];
+        document.getElementById("marker_in_question").style.color = "#888888";
+        document.getElementById("question_highlighting_error").style.visibility = "hidden";
+        document.getElementById("question_field").style.backgroundColor = window.colors_dimmed[window.current_color_idx];
+    } else {
+        if ( document.getElementById("question").disabled = true ) {
+            document.getElementById("question").disabled = false;
+            document.getElementById("question").value = document.getElementById("hidden_field_for_storing_question").innerHTML;
+            document.getElementById("hidden_field_for_storing_question").innerHTML = "";
+            document.getElementById("fragment_highlighter").style.visibility = "visible";
+            document.getElementById("div_containing_item_4").style.color = "#000000";
+            document.getElementById("marker_in_question").style.backgroundColor = colors[current_color_idx];
+            document.getElementById("marker_in_question").style.color = "#000000";
+            document.getElementById("enter_your_question").style.color = "#000000";
+            document.getElementById("question_highlighting_error").style.visibility = "hidden";
+            document.getElementById("question_field").style.backgroundColor = window.colors[window.current_color_idx];
+        }
+    };
+};
+
+function quality_check() {
+
+    var check = true;
+
+//    document.getElementById("coherence_error").style.visibility = "hidden";
+    document.getElementById("question_error").style.visibility = "hidden";
+    document.getElementById("question_highlighting_error").style.visibility = "hidden";
+    document.getElementById("div_for_first_error_message").style.visibility = "hidden";
+
+    // Coherence
+//    if ( !document.getElementById("coherence1").checked &&
+//         !document.getElementById("coherence2").checked &&
+//         !document.getElementById("coherence3").checked &&
+//         !document.getElementById("coherence4").checked &&
+//         !document.getElementById("coherence5").checked
+//        ) {
+//        flashMessage(document.getElementById("coherence_error"));
+//        check = false;
+//    }
+
+    // The question field
+    // TODO More sophisticated quality control, e.g., spellcheck, min length, question mark?
+    if ( document.getElementById("evoked_yes").checked &&
+         document.getElementById("question").value == ""
+        ) {
+        flashMessage(document.getElementById("question_error"));
+        check = false;
+    }
+
+    // The highlighting
+    // TODO More sophisticated quality control, e.g., min words, max words?
+    if ( document.getElementById("evoked_yes").checked &&
+         document.getElementById("selection_text").value == ""
+        ) {
+        flashMessage(document.getElementById("question_highlighting_error"));
+        check = false;
+    }
+
+    if (!check) flashMessage(document.getElementById("div_for_first_error_message"));
+
+    // If all is fine
+    if (check) {
+
+        // clean up some garbage before sending to server
+        if ( document.getElementById("evoked_no").checked ) {
+            document.getElementById("question_index").remove();
+            document.getElementById("question").remove();
+            document.getElementById("selection_text").remove();
+            document.getElementById("selection_start").remove();
+            document.getElementById("selection_end").remove();
+        } else {    // Save some results for next screen
+            start = document.getElementById("selection_start").value.split(",")
+            end = document.getElementById("selection_end").value.split(",")
+            window.questions_thusfar.push([Number(start[0]), Number(start[1]), Number(end[0]), Number(end[1]), current_color_idx, document.getElementById("question").value, false, window.current_chunk]);
+            document.getElementById("question_index").value = window.questions_thusfar.length - 1;
+            document.getElementById("evoked_yes").remove();
+            document.getElementById("evoked_no").remove();
+        }
+
+        if (check) window.numQuestionsDone++;
+
+        window.current_question_idx = window.questions_thusfar.length - 1;    // Always start counting from the most recent one
+
+        // Slowly scroll to top
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+    }
+
+    return check;
+
+}
+
+</script>
+
+
+<!--
+<center><button onclick="clearSelection()">clear highlighting</button></center> -->
+
+    <p id="instruction1" class="instruction"><b>The first few items will contain instructions like this, in green italics.</b>
+    After that, you'll be on your own.<br>
+    <br>
+    You will read a number of (fragments of) texts, ask questions about them, and look for answers.
+    <b>Each text fragment is revealed piece by piece</b>. Please read each new piece carefully:</p>
+
+    <hr>
+
+        <div id="speaker_labels" style="display: none"><div style="margin-right: 70pt; float: right; color: black; font-size: small">Person B:</div>
+        <div style="margin-left: 40pt; color: black; font-size: small">Person A:</div></div>
+
+        <div id="training" style="padding-top: 2em; margin-left: -7em; position: absolute; display: none; font-size: 36pt; font-family: monospace; color:#cc666655; transform: rotate(-25deg);">[example]</div>
+
+        <div id="fragment_scroller" style="overflow: auto; width: 480pt; height: 200pt">
+            <div style="margin-left: 5%; position: relative; width: 90%">  <!-- TODO More principled way of choosing height -->
+                <div id="answer_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="question_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_highlighter" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_colorizer" style="position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_selector" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+            </div>
+        </div>
+
+    <p id="highlight_error" style="color: red; visibility: hidden;">You can highlight <i>at most ten</i> words; choose the most important part.</p>
+
+    <hr>
+
+    <input type="text" id="question_index" name="question_index" style="display:none"/>
+    <input type="text" id="excerpt_id" name="excerpt_id" style="display:none"/>
+    <input type="text" id="cutoff_points" name="cutoff_points" style="display:none"/>
+    <input type="text" id="current_chunk" name="current_chunk" style="display:none"/>
+    <input type="text" id="pasted" name="pasted" style="display:none"/>
+    <input type="text" id="blurred" name="blurred" style="display:none"/>
+
+<div id="form" style="visibility: hidden; width:40em">
+
+    <p class="instruction">Reading the text above may <b>evoke a question</b> for you.
+        That is, you may be left wondering about something.
+        This is what we are interested in.
+    </p>
+
+    <p>
+<div style="display: none"><b>&#9654; Does the text at this point evoke a<span id="otherOld"></span> question for you?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <span class="r-pill__item">
+                    <input type="radio" id="evoked_yes" name="evoked" value="1" onclick="toggleQuestionRadio(this)" checked>
+                    <label for="evoked_yes">Yes</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="evoked_no" name="evoked" value="0" onclick="toggleQuestionRadio(this)">
+                    <label for="evoked_no">No</label>
+                </span>
+            </div>
+        </fieldset>
+</div>
+    <b>&#9654; Please enter a<span id="other"></span> question the text evokes for you at this point.</b><br>(The text so far must <i>not</i> yet contain an answer to the question!)<br>
+        <!--<div style="position:absolute; margin-left: 8em; margin-top:-52px"><div id="enter_your_question" style="font-size: small">Your question:</div>-->
+    <div class="r-pill__group" id="question_field">
+        <input name="question" id="question" type="text" style="width: 25em; border-style:none; background-color:transparent" onpaste="pasted('question')" spellcheck="true"/>
+    </div>
+    <b id="question_error" style="color: red; visibility: hidden;"> *</b>
+    <div id="hidden_field_for_storing_question" style="display: none"></div>
+        <!-- <input name="q2" type="text" style="width: 40em"></input><br>
+        <input name="q3" type="text" style="width: 40em"></input><br> -->
+    </p>
+
+    <p class="instruction">Which question a given text evokes for you is completely subjective; <b>there is no right or wrong answer.</b><br>
+        <br>
+        If you cannot think of a question right away, <b>you can re-read the fragment</b> and ponder a bit.
+        If it still evokes no question for you, simply click "No".<br>
+        <br></p>
+
+    <div id="div_containing_item_4"><p>
+        <b>&#9654; In the text, <mark id="marker_in_question" style="background:#76bef8">highlight</mark> the main word or short phrase that evokes this question.</b>
+        <b id="question_highlighting_error" style="color: red; visibility: hidden"> *</b>
+        <p class="instruction">
+        Highlighting text works only if you clicked "yes".
+        You highlight text by cursor selection: <b>click-and-drag on the text</b>.<br>
+        <br>
+        A question can be evoked by a single word, by a phrase or even by a whole sentence.
+        <b>Highlight the words that you find the most important for evoking the question.</b></p>
+<!-- below are invisible form fields to which the selection is saved. -->
+        <div style="display: none">
+        Selected text:
+            <input id="selection_text" name="question_highlighting" type="text" style="width: 32em">
+            <textarea id="selection_start" name="question_highlighting_start" rows="1" cols="10"></textarea>
+            <textarea id="selection_end" name="question_highlighting_end" rows="1" cols="10"></textarea>
+        </div>
+    </p></div>
+
+    <hr>
+
+    <div id="div_for_first_error_message" style="color: red; visibility: hidden">
+        Please complete the form first.
+    </div>
+<p class="instruction"><br>You can change your mind and change your responses above as much as you like.
+    Click below when you are satisfied.
+    That will reveal a new piece of the text.</p>
+</div>
+</div>

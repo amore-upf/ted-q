@@ -1,0 +1,179 @@
+<script>
+selector = document.getElementById("fragment_selector");
+
+radio_buttons_yesno = [];
+radio_buttons_5 = ["natural", "coherent"];
+
+init();
+
+function revealForm() {
+
+    document.getElementById("div_containing_message_incase_no_question_was_evoked").style.display = "block";
+    document.getElementById("fragment_highlighter").style.visibility = "hidden";
+    if (window.speakers[0] != -1) {
+        document.getElementById("naturalness-explanation").innerHTML = "&#9654; Does this excerpt seem natural, like a dialog that could happen in the real world (face-to-face, messaging, ...)?";
+    }
+};
+
+
+function quality_check() {
+
+    var check = true;
+    // Naturalness
+    if ( !document.getElementById("natural1").checked &&
+         !document.getElementById("natural2").checked &&
+         !document.getElementById("natural3").checked &&
+         !document.getElementById("natural4").checked &&
+         !document.getElementById("natural5").checked
+       ) {
+        flashMessage(document.getElementById("natural_error"));
+        check = false;
+    }
+    // Coherence
+    if ( !document.getElementById("coherent1").checked &&
+         !document.getElementById("coherent2").checked &&
+         !document.getElementById("coherent3").checked &&
+         !document.getElementById("coherent4").checked &&
+         !document.getElementById("coherent5").checked
+       ) {
+        flashMessage(document.getElementById("coherent_error"));
+        check = false;
+    }
+
+    if (!check) flashMessage(document.getElementById("div_for_last_error_message"));
+
+    if (check) window.numTextsDone++;
+
+    return check;
+}
+
+
+</script>
+
+
+
+<!--
+<center><button onclick="clearSelection()">clear highlighting</button></center> -->
+
+<div style="width: 40em">
+
+
+
+    <hr>
+
+        <div id="speaker_labels" style="display: none"><div style="margin-right: 70pt; float: right; color: black; font-size: small">Person B:</div>
+        <div style="margin-left: 40pt; color: black; font-size: small">Person A:</div></div>
+
+        <div id="training" style="padding-top: 2em; margin-left: -7em; position: absolute; display: none; font-size: 36pt; font-family: monospace; color:#cc666655; transform: rotate(-25deg);">[example]</div>
+
+        <div id="fragment_scroller" style="overflow: auto; width: 480pt; height: 200pt">
+            <div style="margin-left: 5%; position: relative; width: 90%">  <!-- TODO More principled way of choosing height -->
+                <div id="answer_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="question_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_highlighter" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_colorizer" style="position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_selector" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+            </div>
+        </div>
+    <hr>
+
+    <input type="text" id="question_index" name="question_index" style="display:none"/>
+    <input type="text" id="excerpt_id" name="excerpt_id" style="display:none"/>
+    <input type="text" id="cutoff_points" name="cutoff_points" style="display:none"/>
+    <input type="text" id="current_chunk" name="current_chunk" style="display:none"/>
+    <input type="text" id="pasted" name="pasted" style="display:none"/>
+    <input type="text" id="blurred" name="blurred" style="display:none"/>
+
+    <p class="instruction">The text fragment has now been completely revealed.
+        Thanks for all your work so far!<br>
+        <br>
+        We have only a few more general questions left, before you can move on to a new fragment.
+    </p>
+
+
+<div id="div_containing_message_incase_no_question_was_evoked" style="position: relative; display: none">
+    <p><b id="naturalness-explanation">&#9654; Did this excerpt seem natural, like something a person could have said or written?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Very unnatural.</i>
+                <!-- Ugly way of having default value empty string for radio buttons: TODO field ended up twice in results... -->
+                <!-- <input type="text" id="answered0" name="answered" value="" style="display:none"/> -->
+                <span class="r-pill__item">
+                    <input type="radio" id="natural1" name="natural" value="1"/>
+                    <label for="natural1">1</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="natural2" name="natural" value="2"/>
+                    <label for="natural2">2</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="natural3" name="natural" value="3"/>
+                    <label for="natural3">3</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="natural4" name="natural" value="4"/>
+                    <label for="natural4">4</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="natural5" name="natural" value="5"/>
+                    <label for="natural5">5</label>
+                </span>
+                <i>Very natural. &nbsp;&nbsp;</i>
+            </div><b id="natural_error" style="color: red; visibility: hidden"> *</b>
+        </fieldset>
+    </p>
+
+        <p><b>&#9654; Was this excerpt comprehensible to you?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Impossible to follow.</i>
+                <!-- Ugly way of having default value empty string for radio buttons: TODO field ended up twice in results... -->
+                <!-- <input type="text" id="answered0" name="answered" value="" style="display:none"/> -->
+                <span class="r-pill__item">
+                    <input type="radio" id="coherent1" name="coherent" value="1"/>
+                    <label for="coherent1">1</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherent2" name="coherent" value="2"/>
+                    <label for="coherent2">2</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherent3" name="coherent" value="3"/>
+                    <label for="coherent3">3</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherent4" name="coherent" value="4"/>
+                    <label for="coherent4">4</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="coherent5" name="coherent" value="5"/>
+                    <label for="coherent5">5</label>
+                </span>
+                <i>Perfectly comprehensible. &nbsp;&nbsp;</i>
+            </div><b id="coherent_error" style="color: red; visibility: hidden"> *</b>
+        </fieldset>
+    </p>
+
+
+    <p>
+    <b>&#9654; Any comments about this excerpt, or about your responses?</b><br>
+    <div class="r-pill__group" id="comment_field"><input name="comment" id="comment" type="text" style="width: 33em; border-style:none; background-color:transparent" onpaste="pasted('comment')" spellcheck="true"/></div>
+    </p>
+
+    <p class="instruction">This last field is optional.
+        You can use it to let us know if something went wrong, or (for instance) if you were particularly annoyed or inspired by the text fragment.
+    </p>
+
+</div>
+
+<hr>
+<div id="div_for_last_error_message" style="color: red; visibility: hidden">
+Please complete the form first.
+</div>
+
+
+    <p class="instruction">We have no further questions about this text fragment.
+        By clicking below, you will be presented with an entirely new text.
+    </p>
+
+</div>

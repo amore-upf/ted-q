@@ -1,0 +1,251 @@
+body {
+    color: black;
+    background-color: white;
+    margin-left: 0;
+    margin-top: 2em;
+    overflow-y: scroll;
+}
+.lindent { margin-left: 5em; }
+.sending-results {
+    font-weight: bold;
+    font-size: medium;
+}
+div.bar-container {
+    border: 1px solid;
+    border-color: #9ea4b1;
+    background-color: white;
+}
+div.bar {
+    background-color: blue;
+}
+p.progress-text {
+    padding-top: 0.5em;
+    margin-top: 0;
+    margin-bottom: -1em;
+    font-style: italic;
+    font-size: small;
+}
+p.practice-box {
+    color: blue;
+    height: 1.5em;
+    padding-bottom: 1em;
+    font-size: small;
+    text-align: center;
+}
+span.retry {
+    color: blue;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+span.retry:hover {
+    text-decoration: underline;
+}
+span.retry:visited {
+    color: blue;
+}
+
+/** Thanks to https://github.com/scottaohara/a11y_styled_form_controls
+ * Shared styling among the different form controls.
+ * Much of these styles are pulled from normalize.css.
+ * Use as necessary within your own style sheets.
+ */
+input,
+button,
+textarea,
+select {
+	border-radius: 0; /* may change, but start consistently */
+	box-sizing: border-box;
+	font-family: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: normal;
+	margin: 0;
+	overflow: visible; /* show overflow in Edge */
+	text-transform: none; /* remove inheritance Edge, Firefox, IE */
+}
+
+/**
+ * Remove the Clear button added by MS browsers
+ */
+input::-ms-clear {
+	display: none;
+	height: 0;
+	width: 0;
+}
+
+
+/**
+ * <button> Focus Normalization:
+ * remove FireFox specific inner focus styles.
+ * focus style will be reapplied later.
+ */
+button::-moz-focus-inner {
+	border-style: none;
+	padding: 0;
+}
+
+
+/* parent container <fieldset> */
+.r-pill {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+/*
+	Optional inner wrapper (<div>) to provide additional styling.
+	#fafafa
+	#083851
+*/
+.r-pill__group {
+	background: #fafafa;
+	border: 1px solid #222222;
+	border-radius: 2em;
+	display: inline-block;
+	padding: .25em;
+}
+
+.r-pill__item {
+	display: inline-block;
+	position: relative;
+}
+
+.r-pill input {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background: none;
+	border: 2px solid;
+	height: 100%;
+	left: 0;
+	opacity: .00001;
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+
+/* #083851 */
+.r-pill__item label {
+	border-radius: 2em;
+	border: 2px solid transparent;
+	color: #222222;
+	display: block;
+	padding: .25em .75em;
+}
+
+/* #E2F1FD
+#2196f3  */
+.r-pill__item input:hover ~ label,
+.r-pill__item label:hover {
+	background: #e8e8e8;
+	border-color: #555555;
+}
+
+/* #2196f3
+ #fff */
+.r-pill[disabled] .r-pill__item input:checked + label:hover,
+.r-pill__item input:checked + label {
+	background: #555555;
+	color: #fff;
+}
+
+.r-pill__item label:after {
+	border: 2px solid;
+	border-color: rgba(0,0,0,0);
+	border-radius: 2em;
+	bottom: 0;
+	content: "";
+	left: 0;
+	pointer-events: none; /* 1 */
+	position: absolute;
+	right: 0;
+	top: 0;
+	transition:
+		bottom .2s ease-in-out,
+		border-color .2s ease-in-out,
+		left .2s ease-in-out,
+		right .2s ease-in-out,
+		top .2s ease-in-out;
+	/*
+		1. Don't like pointer-events?
+			 then use z-index: -1;
+			 but we don't want this getting in the way
+			 of touch / mouse clicks.
+	*/
+}
+
+/* #2196f3  */
+.r-pill__item input:focus ~ label:after  {
+	border-color: #555555;
+	bottom: -.25em;
+	left: -.25em;
+	right: -.25em;
+	top: -.25em;
+}
+
+
+/**
+ * Disabled
+ */
+.r-pill[disabled],
+.r-pill__item input[disabled] + label {
+	opacity: .5;
+}
+
+.r-pill__item input[disabled] ~ label,
+.r-pill__item input[disabled] ~ label:hover,
+.r-pill[disabled] label:hover {
+	background: transparent;
+	border-color: transparent;
+	cursor: not-allowed;
+}
+
+
+/**
+ * Undo styling that makes these pills appear as
+ * if they are all checked in high contrast mode.
+ */
+@media screen and (-ms-high-contrast: active) {
+	.r-pill__item label {
+		border: 0;
+		margin: 2px;
+	}
+
+	.r-pill__item input:checked + label {
+		border: 2px solid;
+		margin: 0;
+	}
+
+	.r-pill__item input:hover ~ label,
+	.r-pill__item label:hover {
+		text-decoration: underline;
+	}
+
+	.r-pill[disabled] .r-pill__item label:hover,
+	.r-pill[disabled] .r-pill__item input:hover ~ label {
+		text-decoration: none
+	}
+}
+
+/* For dialogue presentation: */
+div.dialeft {
+    border-radius: 5pt;
+    padding: 10px;
+    margin-top:5pt;
+    margin-right:120pt;
+}
+div.diaright {
+    border-radius: 5pt;
+    padding: 10px;
+    margin:5pt;
+    margin-left:130pt;
+}
+
+.instruction {
+   color: #448844;
+/*   font-style: italic; */
+   font-size: 11pt;
+   display: none;
+}

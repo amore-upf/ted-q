@@ -1,0 +1,286 @@
+<script>
+selector = document.getElementById("fragment_selector");
+
+radio_buttons_yesno = [];
+radio_buttons_5 = ["answered"];
+
+init();
+
+function revealForm() {
+
+    document.getElementById("marker_in_question2").style.backgroundColor = window.colors[window.current_color_idx];
+    document.getElementById("question_display_field").style.backgroundColor = window.colors_dimmed[window.current_color_idx];
+    document.getElementById("answer_field").style.backgroundColor = window.colors[window.current_color_idx];
+
+    //// If unanswered question is available:
+    // if (window.current_question_idx >= 0 && !window.questions_thusfar[window.current_question_idx][6]) {
+    // Variant where question must be sufficiently recent:
+    if (window.current_question_idx >= 0 && !window.questions_thusfar[window.current_question_idx][6] && window.questions_thusfar[window.current_question_idx][7] >= window.current_chunk - 4) {
+        var prev_question = window.questions_thusfar[window.current_question_idx][5];
+        document.getElementById("question_copy_for_display").innerHTML = prev_question;
+        document.getElementById("div_containing_form_for_fragment_cont").style.visibility = "visible";
+        if (window.current_question_idx == window.questions_thusfar.length-2) {
+            document.getElementById("you").innerHTML = "Earlier, you also";
+        } else if (window.current_question_idx < window.questions_thusfar.length-2) {
+            document.getElementById("you").innerHTML = "Before, you also";
+        }
+    } else {
+        document.getElementById("continue_link").click(); // skip this page
+    }
+
+};
+
+// For hiding/showing follow-up form fields depending on whether the evoked question was answered
+function toggleAnswerRadio(element) {
+    if ( element.id == "answered1" || element.id == "answered2" ) {
+        document.getElementById("answer").disabled = true;
+        document.getElementById("hidden_field_for_storing_answer").innerHTML = document.getElementById("answer").value;
+        document.getElementById("answer").value = "";
+        document.getElementById("fragment_highlighter").style.visibility = "hidden";
+        document.getElementById("div_containing_items_6_and_7").style.color = "#888888";
+        document.getElementById("answer_error").style.visibility = "hidden";
+        document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+        document.getElementById("marker_in_question2").style.backgroundColor = window.colors_dimmed[window.current_color_idx];
+        document.getElementById("marker_in_question2").style.color = "#888888";
+        document.getElementById("answer_field").style.backgroundColor = window.colors_dimmed[window.current_color_idx];
+    } else {
+        if ( document.getElementById("answer").disabled == true ) {
+            document.getElementById("answer").disabled = false;
+            document.getElementById("answer").value = document.getElementById("hidden_field_for_storing_answer").innerHTML;
+            document.getElementById("fragment_highlighter").style.visibility = "visible";
+            document.getElementById("div_containing_items_6_and_7").style.color = "#000000";
+            document.getElementById("answer_error").style.visibility = "hidden";
+            document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+            document.getElementById("marker_in_question2").style.backgroundColor = window.colors[window.current_color_idx];
+            document.getElementById("marker_in_question2").style.color = "#000000";
+            document.getElementById("answer_field").style.backgroundColor = window.colors[window.current_color_idx];
+        }
+    };
+};
+
+
+function quality_check() {
+
+    // In case nothing further was required:
+    if (document.getElementById("div_containing_form_for_fragment_cont").style.visibility != "visible") {
+        document.getElementById("question_index").remove();
+        document.getElementById("answer").remove();
+        document.getElementById("answered1").remove();
+        document.getElementById("answered2").remove();
+        document.getElementById("answered3").remove();
+        document.getElementById("answered4").remove();
+        document.getElementById("answered5").remove();
+        document.getElementById("selection_text").remove();
+        document.getElementById("selection_start").remove()
+        document.getElementById("selection_end").remove();
+        document.getElementById("excerpt_id").remove();
+        document.getElementById("cutoff_points").remove();
+        document.getElementById("current_chunk").remove();
+        document.getElementById("pasted").remove();
+        document.getElementById("blurred").remove();
+        window.current_question_idx--;
+        return true;
+    }
+
+    // Otherwise, check if all required fields are completed:
+    var check = true;
+
+    document.getElementById("answered_error").style.visibility = "hidden";
+    document.getElementById("answer_error").style.visibility = "hidden";
+    document.getElementById("answer_highlighting_error").style.visibility = "hidden";
+    document.getElementById("div_for_last_error_message").style.visibility = "hidden";
+
+    // Answered
+    if ( !document.getElementById("answered1").checked &&
+         !document.getElementById("answered2").checked &&
+         !document.getElementById("answered3").checked &&
+         !document.getElementById("answered4").checked &&
+         !document.getElementById("answered5").checked
+       ) {
+        flashMessage(document.getElementById("answered_error"));
+        check = false;
+    }
+
+    // The answer field
+    // TODO More sophisticated quality control, e.g., spellcheck, min length, question mark?
+    if ( !document.getElementById("answered1").checked &&
+         !document.getElementById("answered2").checked &&
+         document.getElementById("answer").value == ""
+       ) {
+        flashMessage(document.getElementById("answer_error"));
+        check = false;
+    }
+
+    // The answer highlighting
+    // TODO More sophisticated quality control, e.g., min words, max words?
+    if ( !document.getElementById("answered1").checked &&
+         !document.getElementById("answered2").checked &&
+         document.getElementById("selection_text").value == ""
+        ) {
+        flashMessage(document.getElementById("answer_highlighting_error"));
+        check = false;
+    }
+
+    if (!check) flashMessage(document.getElementById("div_for_last_error_message"));
+
+    // If all is fine
+    if (check) {
+        // Clean up some garbage before sending to server
+        if (document.getElementById("answered1").checked || document.getElementById("answered2").checked) {
+            document.getElementById("answer").remove();
+            document.getElementById("selection_text").remove();
+            document.getElementById("selection_start").remove();
+            document.getElementById("selection_end").remove();
+        } else {  // Save some results for next screen
+            start = document.getElementById("selection_start").value.split(",")
+            end = document.getElementById("selection_end").value.split(",")
+            window.answers_thusfar.push([Number(start[0]), Number(start[1]), Number(end[0]), Number(end[1]), current_color_idx, document.getElementById("answer").value]);
+            window.questions_thusfar[window.current_question_idx][6] = true;
+        }
+
+        if (check) window.numAnswersDone++;
+
+        document.getElementById("question_index").value = window.current_question_idx;
+
+        window.current_question_idx--;
+
+        // Slowly scroll to top
+        $("html, body").animate({ scrollTop: 0 }, "slow");
+    }
+
+    return check;
+
+}
+
+
+</script>
+
+
+
+<!--
+<center><button onclick="clearSelection()">clear highlighting</button></center> -->
+
+<div style="width: 40em">
+
+    <p class="instruction" id="instruction1"><b>The first few items will contain instructions like this, in green italics.</b>
+    After that, you'll be on your own.<br>
+    <br>
+    You will read a number of (fragments of) texts, ask questions about them, and look for answers.
+    <b>Each text fragment is revealed piece by piece</b>. Please read each new piece carefully:</p>
+
+    <hr>
+
+        <div id="speaker_labels" style="display: none"><div style="margin-right: 70pt; float: right; color: black; font-size: small">Person B:</div>
+        <div style="margin-left: 40pt; color: black; font-size: small">Person A:</div></div>
+
+        <div id="training" style="padding-top: 2em; margin-left: -7em; position: absolute; display: none; font-size: 36pt; font-family: monospace; color:#cc666655; transform: rotate(-25deg);">[example]</div>
+
+        <div id="fragment_scroller" style="overflow: auto; width: 480pt; height: 200pt">
+            <div style="margin-left: 5%; position: relative; width: 90%">  <!-- TODO More principled way of choosing height -->
+                <div id="answer_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="question_highlighter_prev" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_highlighter" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_colorizer" style="position: absolute; display: inline-block; width:95%"></div>
+                <div id="fragment_selector" style="color:transparent; position: absolute; display: inline-block; width:95%"></div>
+            </div>
+        </div>
+
+    <p id="highlight_error" style="color: red; visibility: hidden;">You can highlight <i>at most ten</i> words; choose the most important part.</p>
+    <hr>
+
+    <input type="text" id="question_index" name="question_index" style="display:none"/>
+    <input type="text" id="excerpt_id" name="excerpt_id" style="display:none"/>
+    <input type="text" id="cutoff_points" name="cutoff_points" style="display:none"/>
+    <input type="text" id="current_chunk" name="current_chunk" style="display:none"/>
+    <input type="text" id="pasted" name="pasted" style="display:none"/>
+    <input type="text" id="blurred" name="blurred" style="display:none"/>
+
+<div id="div_containing_form_for_fragment_cont" style="visibility:hidden; width:40em">
+
+    <p class="instruction">The new piece of text may (or may not) contain information that helps answer questions you entered before.
+        This is what we are interested in.
+    </p>
+
+    <p><b><span id="you">You</span> entered the following question:</b>
+        <div class="r-pill__group" style="background-color: #eeeeee" id="question_display_field"><div id="question_copy_for_display" style="width: 32em"></div></div>
+        <!-- "width: 32em; background-color: #eeeeee; border: 1px solid darkgray; box-shadow: 1px 1px 1px 0 lightgray inset; margin-top: 5px; padding: 2px 3px" -->
+    </p>
+
+    <p><b>&#9654; Was that question answered in the new piece of text?</b><br>
+        <fieldset class="r-pill">
+            <div class="r-pill__group">
+                <i>&nbsp;&nbsp;Not answered at all.</i>
+                <!-- Ugly way of having default value empty string for radio buttons: TODO field ended up twice in results... -->
+                <!-- <input type="text" id="answered0" name="answered" value="" style="display:none"/> -->
+                <span class="r-pill__item">
+                    <input type="radio" id="answered1" name="answered" value="1" onclick="toggleAnswerRadio(this)"/>
+                    <label for="answered1">1</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered2" name="answered" value="2" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered2">2</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered3" name="answered" value="3" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered3">3</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered4" name="answered" value="4" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered4">4</label>
+                </span>
+                <span class="r-pill__item">
+                    <input type="radio" id="answered5" name="answered" value="5" onclick="toggleAnswerRadio(this)" />
+                    <label for="answered5">5</label>
+                </span>
+                <i>Completely answered.&nbsp;&nbsp;</i>
+            </div><b id="answered_error" style="color: red; visibility: hidden"> *</b>
+        </fieldset>
+    </p>
+
+    <p class="instruction">As before, we are interested in your subjective assessment.<br>
+        <br>
+    </p>
+
+    <div id="div_containing_items_6_and_7"><p>
+        <b>&#9654; Enter the (complete/partial) answer in your own words:</b><br>
+        <div class="r-pill__group" id="answer_field"><input name="answer" id="answer" type="text" style="width: 33em; border-style:none; background-color:transparent" onpaste="pasted('answer')" spellcheck="true"/></div><b id="answer_error" style="color: red; visibility: hidden"> *</b>
+        <div id="hidden_field_for_storing_answer" style="display: none"></div>
+        </p>
+
+        <p class="instruction">This item applies only if your question was at least somewhat answered (3 or higher).<br>
+            <br>
+            Please try to use <b>correct grammar and spelling</b>, and prefer full sentences over single words.<br>
+        <br></p>
+
+        <p>
+        <b>&#9654; In the new piece of text, <mark id="marker_in_question2" style="background:#76bef8">highlight</mark> the main word or short phrase suggesting this answer.</b>
+        <b id="answer_highlighting_error" style="color: red; visibility: hidden"> *</b><br>
+        <p class="instruction">Highlighting works only if your question was at least somewhat answered (3 or higher).
+            You highlight text by cursor selection: <b>click-and-drag on the text</b>.<br>
+            <br>
+            A question can be answered by a single word, by a phrase or by a whole sentence.
+            <b>Highlight the words that you find most clearly provide the answer.</b><br>
+            <br>
+            <b>You can highlight text only in the newest piece of text.</b>
+            If you made a mistake and your question was in fact already answered by an earlier excerpt, click 1 or 2 above.
+        </p>
+
+<!-- below are invisible form fields to which the selection is saved. -->
+        <div style="display: none">
+        Selected text:
+            <input id="selection_text" name="answer_highlighting" type="text" style="width: 32em">
+            <textarea id="selection_start" name="answer_highlighting_start" rows="1" cols="10"></textarea>
+            <textarea id="selection_end" name="answer_highlighting_end" rows="1" cols="10"></textarea>
+        </div>
+    </p></div>
+
+    <hr>
+    <div id="div_for_last_error_message" style="color: red; visibility: hidden">
+    Please complete the form first.
+    </div>
+<p class="instruction"><br>Again, you can change your responses above as much as you like.
+    Click below when you are satisfied.
+    That will reveal a new piece of the text.</p>
+</div>
+
+</div>
