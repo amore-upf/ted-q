@@ -1,7 +1,8 @@
 # Ibex experiment for eliciting questions evoked by discourse #
 By Matthijs Westera and Hannah Rohde
 
-Example: http://spellout.net/ibexexps/mwestera/evoque/experiment.html
+Example: ~~http://spellout.net/ibexexps/mwestera/evoque/experiment.html~~ Ibexfarm has been retired. An updated version of the experiment is hosted here:
+http://research.ullet.net/experiment.html?ses=123&phase=experiment&mode=qmand&src=0&with_square=0 .
 
 This code has been used for the TED-Q dataset: https://github.com/amore-upf/ted-q
 
