@@ -1,5 +1,13 @@
 # TED-Q: TED Talks and the Questions they Evoke #
 
+While reading a TED-talk transcript, what are people wondering about?
+
+This repository contains the dataset for our paper [TED-Q: TED Talks and the Questions they Evoke](https://aclanthology.org/2020.lrec-1.141/).
+
+### !! NEW !!
+
+You may find more convenient representations of the same dataset here, especially for investigating the alignment of questions and discourse relations: [TED-QDB](https://github.com/LeidenNLP/ted-qdb/).
+
 ## Contents of this repository ##
 
 See further below for an explanation of the structure of these .csv files.
